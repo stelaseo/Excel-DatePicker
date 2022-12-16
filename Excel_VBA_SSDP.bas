@@ -2,9 +2,10 @@ Attribute VB_Name = "DatePicker"
 '------------------------------------------------------------------------------'
 ' Author : Stela H. Seo (https://github.com/stelaseo/)                         '
 ' Project: Excel VBA Date Picker                                               '
-' Date   : December 07, 2022                                                   '
-' Version: 1.5                                                                 '
+' Date   : December 16, 2022                                                   '
+' Version: 1.6                                                                 '
 ' Version History                                                              '
+' 1.6  Dec 16, 2022  add an optional parameter (close on selecting a day)      '
 ' 1.5  Dec 07, 2022  upload to github                                          '
 ' 1.4  Nov 07, 2022  update the license to BSD                                 '
 ' 1.3  Oct 31, 2022  use the given sheet name instead of ActiveSheet           '
@@ -46,6 +47,7 @@ Private Const DP_PANEL_NAME As String = "SSDP_Calendar_Panel"
 Private Const DP_PANEL_WIDTH As Single = DP_DAY_WIDTH * 7 + DP_PANEL_MARGIN * 2
 Private Const DP_PANEL_HEIGHT As Single = DP_TITLE_HEIGHT + DP_DAY_HEIGHT * 7 + DP_PANEL_MARGIN * 2
 
+Private dpCloseOnDaySelection As Boolean
 Private dpSheetName As String
 Private firstDayOfCalendar As Date
 Private firstDayOfMonth As Date
@@ -70,10 +72,11 @@ Public Function DPClose()
 End Function
 
 
-Public Function DPOpen(ByVal sheetName As String, ByVal address As String, ByVal x As Single, ByVal y As Single)
+Public Function DPOpen(ByVal sheetName As String, ByVal address As String, ByVal x As Single, ByVal y As Single, Optional ByVal closeOnDaySelection As Boolean = False)
     DPCloseNonActiveSheets sheetName
     x = WorksheetFunction.Max(0, x)
     y = WorksheetFunction.Max(0, y)
+    dpCloseOnDaySelection = closeOnDaySelection
     If Not IsEmpty(dpSheetName) And dpSheetName <> "" Then
         Dim dp As Variant
         Set dp = DPFind(Sheets(dpSheetName))
@@ -103,7 +106,11 @@ Public Function DPClickDay(ByVal row As Integer, ByVal col As Integer)
         selectedDate = DateAdd("d", DP_DAY_COLUMNS * (row - 1) + (col - 1), firstDayOfCalendar)
         Debug.Print "Select " + CStr(selectedDate)
         Sheets(dpSheetName).Range(targetAddress).value = selectedDate
-        DPUpdate
+        If dpCloseOnDaySelection Then
+            DPClose
+        Else
+            DPUpdate
+        End If
     End If
 End Function
 
