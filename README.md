@@ -1,7 +1,7 @@
 # Excel-DatePicker
 Excel VBA Date Picker for Worksheet
 
-![[sample.png]]
+![sample](sample.png)
 
 '------------------------------------------------------------------------------  
 ' Author : Stela H. Seo (https://github.com/stelaseo/)                           
