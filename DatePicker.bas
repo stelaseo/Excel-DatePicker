@@ -1,10 +1,11 @@
 Attribute VB_Name = "DatePicker"
+
 Option Explicit
 '------------------------------------------------------------------------------'
 ' Author : Stela H. Seo (https://github.com/stelaseo/)                         '
 ' Project: Excel VBA Date Picker
 ' Website: https://github.com/stelaseo/Excel-DatePicker/tree/main
-' Date   : 09 January 16 2025                                                 '
+' Date   : December 16, 2022                                                   '
 ' Version: 1.7                                                                 '
 ' Version History                                                              '
 ' 1.7  Dec 09, 2024  alexofrhodes - added button for TODAY and time selection in increments of 15,30,60
@@ -96,6 +97,7 @@ Private selectMonth As Boolean
 Private targetAddress As String
 Private targetMonth As Integer
 Private targetYear As Integer
+
 '<-------------- alexofrhodes
 Private Const DP_DEFAULT_TIMEFORMAT As String = "dd/mm/yyy hh:nn"
 Private Const DP_TIME_INCREMENT As Integer = 60 ' 15-30-60 - Time increment in minutes, 15-30-60
@@ -104,6 +106,8 @@ Private Const DP_TIME_BUTTON_HEIGHT As Single = 20
 Private Const DP_TIME_PREFIX As String = "SSDP_Time_"
 Private Const DP_NO_TIME_BUTTON As String = "SSDP_No_Time"
 '<-------------- alexofrhodes
+
+
 Public Function DPClose()
     DPCloseNonActiveSheets dpSheetName
     If Not IsEmpty(dpSheetName) And dpSheetName <> "" Then
@@ -370,7 +374,7 @@ Private Function DPCreate(ByVal initialX As Single, ByVal initialY As Single) As
     End Select
     rowsPerColumn = totalTimeSlots / timeColumns ' Rows per column
     x = initialX + DP_PANEL_WIDTH + DP_PANEL_MARGIN ' Start X position
-    y = initialY + DP_PANEL_MARGIN ' Start Y position
+    y = initialY + DP_PANEL_MARGIN * 3 ' Start Y position
     time = TimeSerial(0, 0, 0) ' Start at midnight
     For timeRow = 1 To totalTimeSlots
         i = i + 1
@@ -392,7 +396,7 @@ Private Function DPCreate(ByVal initialX As Single, ByVal initialY As Single) As
         y = y + DP_TIME_BUTTON_HEIGHT ' Move to the next row
         ' Move to the next column if necessary
         If (timeRow Mod rowsPerColumn = 0) Then
-            y = initialY + DP_PANEL_MARGIN ' Reset Y position
+            y = initialY + DP_PANEL_MARGIN * 3 ' Reset Y position
             x = x + DP_TIME_COLUMN_WIDTH + DP_PANEL_MARGIN ' Move to the next column
         End If
     Next timeRow
@@ -460,7 +464,6 @@ Public Function DPClickToday()
             .NumberFormat = "dd/mm/yyyy"
             .value = selectedDate
         End With
-        DPCalculateTarget selectedDate
         DPUpdate
     End If
 End Function
@@ -512,6 +515,10 @@ Public Function DPClickWeekDay(ByVal value As Integer)
 End Function
 Private Function DPCalculateTarget(ByVal targetDate As Date)
     targetDate = WorksheetFunction.Max(DateSerial(1901, 1, 1), WorksheetFunction.Min(DateSerial(9998, 12, 31), targetDate))
+    If selectedDate <> targetDate Then
+        selectedDate = targetDate
+        DPClickToday
+    End If
     targetYear = Year(targetDate)
     targetMonth = Month(targetDate)
     firstDayOfMonth = DateSerial(targetYear, targetMonth, 1)
